@@ -13,13 +13,13 @@ public class TerrainService extends ServertestGrpc.ServertestImplBase {
 
     @Override
     public void terrainCalcul(GrpcServer.TerrainRequest request, StreamObserver<GrpcServer.TerrainResponse> responseObserver) {
-        double surf=request.getSurface();
-        double taux=request.getTaux();
         GrpcServer.TerrainResponse response= GrpcServer.TerrainResponse.newBuilder()
-                .setPrix(surf * taux)
+                .setLabel(request.getLabel())
+                .setPrix(request.getSurface() * request.getTaux())
                 .build();
         responseObserver.onNext(response);
-        responseObserver.onCompleted();  // informer le client complet
+        responseObserver.onCompleted();
+        System.out.println("terrainCalcul Completed");
     }
 
     @Override
@@ -42,7 +42,7 @@ public class TerrainService extends ServertestGrpc.ServertestImplBase {
 
             @Override
             public void onCompleted() {
-                System.out.println("onCompleted = " + total);
+                System.out.println("clientStreamTerrainCalcul onCompleted = " + total);
                 GrpcServer.TerrainResponse response = GrpcServer.TerrainResponse.newBuilder()
                         .setLabel(lable)
                         .setPrix(total)
@@ -61,6 +61,7 @@ public class TerrainService extends ServertestGrpc.ServertestImplBase {
             @Override
             public void onNext(GrpcServer.TerrainRequest request) {
                 GrpcServer.TerrainResponse response= GrpcServer.TerrainResponse.newBuilder()
+                        .setLabel(request.getLabel())
                         .setPrix(request.getTaux()*request.getSurface())
                         .build();
                 responseObserver.onNext(response);
@@ -73,7 +74,7 @@ public class TerrainService extends ServertestGrpc.ServertestImplBase {
 
             @Override
             public void onCompleted() {
-                System.out.println("onCompleted");
+                System.out.println("fullStreamTerrainCalcul Completed");
                 responseObserver.onCompleted();
             }
         };
